@@ -7,10 +7,10 @@ const { loadAuthClient } = require('./auth/googleAuth');
 const { postToBloggerWithAuth } = require('./utils/bloggerPoster');
 const { generateTitleWithOllama } = require('./utils/generateTitleWithOllama');
 
-
 const BLOG_ID = '327416300153417893'; // ✅ your blog ID
 
-(async () => {
+// ✅ Define CLI function
+async function runCLI() {
   const titleObj = await chooseTitle();
   let postContent = '', commentText = '';
 
@@ -45,4 +45,12 @@ const BLOG_ID = '327416300153417893'; // ✅ your blog ID
       });
     });
   }
-})();
+}
+
+// ✅ Run only if file is executed directly
+if (require.main === module) {
+  runCLI();
+}
+
+// ✅ Export for use in other modules (like test or API)
+module.exports = { runCLI };
