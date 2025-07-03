@@ -1,12 +1,20 @@
-function buildPrompt({ title, postContent = '', comments = '', customPrompt = '' }) {
-    return `
+function buildPrompt({ title, postContent = '', comments = [], customPrompt = '' }) {
+  // 🧠 Convert array of comments to bullet points
+  let formattedComments = '[No comments found]';
+  if (Array.isArray(comments) && comments.length > 0) {
+    formattedComments = comments.map(c => `- ${c}`).join('\n');
+  } else if (typeof comments === 'string' && comments.trim() !== '') {
+    formattedComments = '- ' + comments.replace(/\n/g, '\n- ');
+  }
+
+  return `
   # ${title}
   
   ## Reddit Post Summary:
   ${postContent || '[No post body found — may be a link/image post]'}
   
   ## Top Comments:
-  ${comments ? '- ' + comments.replace(/\n/g, '\n- ') : '[No comments found]'}
+  ${formattedComments}
   
   ## Instruction:
   ${customPrompt || 'Write an SEO-friendly blog post using the above Reddit content. Use headings, lists, and a human-like tone.'}
@@ -46,5 +54,6 @@ function buildPrompt({ title, postContent = '', comments = '', customPrompt = ''
   ## Final Instruction:
   Write the blog article in valid HTML. Output the blog content only.
   `;
-  }
-  module.exports = { buildPrompt };
+}
+
+module.exports = { buildPrompt };
