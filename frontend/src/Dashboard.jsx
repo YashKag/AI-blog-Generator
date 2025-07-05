@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState,useEffect } from "react"
 
 const Dashboard = () => {
   const [title, setTitle] = useState("")
@@ -10,13 +10,21 @@ const Dashboard = () => {
   const [topics, setTopics] = useState([])
   const [subreddit, setSubreddit] = useState("technology")
   const [postContent, setPostContent] = useState("")
-const [comments, setComments] = useState("")
+  const [summary, setSummary] = useState([])
+  const [comments, setComments] = useState("")
+  const [images, setImages] = useState([])
 
+  
+  const [rssArticles, setRssArticles] = useState([])
 
   const apiBase = import.meta.env.VITE_API_URL
 
+
+
   const fetchTopics = async () => {
     try {
+
+
       const res = await fetch(`${apiBase}/api/topics?subreddit=${subreddit}`)
       const data = await res.json()
   
@@ -28,6 +36,33 @@ const [comments, setComments] = useState("")
     }
   }
   
+
+
+
+  const fetchImages = async (query) => {
+    try {
+      const res = await fetch(`${apiBase}/api/image?q=${encodeURIComponent(query)}`)
+      const data = await res.json()
+      setImages(data)
+    } catch (err) {
+      console.error("❌ Unsplash image fetch failed:", err)
+    }
+  }
+
+  useEffect(() => {
+    fetchRss()
+  }, [])
+
+  const fetchRss = async () => {
+    try {
+      const res = await fetch(`${apiBase}/api/rss`)
+      const data = await res.json()
+      console.log("datarss",data)
+      setRssArticles(Array.isArray(data) ? data : [])
+    } catch (err) {
+      console.error("❌ RSS fetch failed:", err)
+    }
+  }
 
   const handlePost = async () => {
     if (!output || !title) {
@@ -56,6 +91,13 @@ const [comments, setComments] = useState("")
       console.error("❌ Publish error:", err)
       alert("❌ Failed to publish: " + err.message)
     }
+
+    console.log("Generation Data:", {
+      title,
+      summary: summary || "NO SUMMARY",
+      postContent: postContent ? `${postContent.substring(0, 50)}...` : "NO CONTENT",
+      comments: comments ? `${comments.substring(0, 50)}...` : "NO COMMENTS"
+    });
   }
 
   const handleGenerate = async () => {
@@ -84,19 +126,23 @@ const [comments, setComments] = useState("")
           postContent: finalPostContent,
           comments: finalComments,
           customPrompt: prompt,
-        }),
+          summary: summary,
+
+         
+        })
       })
-  
-      
+     
+
       const data = await res.json()
-console.log("✅ Response received:", data)
-
-if (!res.ok) {
-  throw new Error(data.error || "Unknown error")
-}
-
-setOutput(data.html || "⚠️ No content generated.")
-setTitle(data.title || title) // ✅ Fix here
+      console.log("✅ Response received:", data)
+    
+      if (!res.ok) {
+        throw new Error(data.error || "Unknown error")
+      }
+    
+      setOutput(data.html || "⚠️ No content generated.")
+      fetchImages(data.title || title) 
+      setTitle(data.title || title)
       
       
     } catch (err) {
@@ -212,6 +258,20 @@ setTitle(data.title || title) // ✅ Fix here
                     Load
                   </button>
                 </div>
+
+                {images.length > 0 && (
+  <div className="flex gap-4 mb-6 overflow-auto">
+    {images.map((img, i) => (
+      <a key={i} href={img.link} target="_blank" rel="noopener noreferrer">
+        <img
+          src={img.url}
+          alt={img.alt}
+          className="rounded-lg w-48 h-32 object-cover border border-white/10"
+        />
+      </a>
+    ))}
+  </div>
+)}
                 
                 {topics.length > 0 && (
                  <select
@@ -222,6 +282,7 @@ setTitle(data.title || title) // ✅ Fix here
                      setTitle(topic.title)
                      setPostContent(topic.postContent || "")
                      setComments(Array.isArray(topic.topComments) ? topic.topComments.join("\n") : "")
+                     setSummary('')
                    }
                  }}
                  className="w-full bg-white/10 backdrop-blur-sm border border-white/20 text-white px-4 py-2 rounded-lg"
@@ -238,8 +299,27 @@ setTitle(data.title || title) // ✅ Fix here
               </div>
             </div>
 
+{/* RSS FEED */}
+<select
+  onChange={(e) => {
+    const index = parseInt(e.target.value);
+    const article = rssArticles[index];
+    if (article) {
+      setTitle(article.title);
+      setPostContent(article.content || ""); 
+      setSummary(article.description || ""); 
+      setComments("");
+      fetchImages(article.title);
+    }
+  }}
+  className="w-full bg-black/10 text-white px-4 py-2 rounded-lg"
+>
+  <option value="">Select RSS title</option>
+  {rssArticles.map((item, i) => (
+    <option key={i} value={i}>{item.title}</option>
+  ))}
+</select>
 
-            
 
             {/* Advanced Options */}
             <div className="bg-gray-900/40 backdrop-blur-sm border border-gray-700/50 rounded-xl p-6">
