@@ -1,26 +1,23 @@
-// // api/publish.js
-// const express = require('express');
-// const router = express.Router();
-// const { postToBlogger } = require('../main'); // import from your existing code
 
-// router.post('/', async (req, res) => {
-//   const { title, html } = req.body;
-//   try {
-//     const url = await postToBlogger(title, html);
-//     res.json({ success: true, url });
-//   } catch (err) {
-//     res.status(500).json({ error: err.message });
-//   }
-// });
-
-// module.exports = router;
 
 const express = require('express');
 const router = express.Router();
 const { postToBloggerWithAuth } = require('../utils/bloggerPoster');
 const { loadAuthClient } = require('../auth/googleAuth');
 
+
+
 const BLOG_ID = process.env.BLOGGER_BLOG_ID;
+
+
+
+await Post.updateOne(
+  { title }, // you can also match by `_id` if available
+  { $set: { status: "published" } }
+);
+
+
+
 
 router.post('/', async (req, res) => {
   const { title, html } = req.body;

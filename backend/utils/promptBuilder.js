@@ -1,62 +1,59 @@
-function buildPrompt({ title, postContent = '',summary ='', comments = [], customPrompt = '' }) {
-  // 🧠 Convert array of comments to bullet points
-  let formattedComments = '[No comments found]';
-  if (Array.isArray(comments) && comments.length > 0) {
-    formattedComments = comments.map(c => `- ${c}`).join('\n');
-  } else if (typeof comments === 'string' && comments.trim() !== '') {
-    formattedComments = '- ' + comments.replace(/\n/g, '\n- ');
+function buildPrompt({ 
+  title, 
+  postContent = '', 
+  summary = '', 
+  comments = [], 
+  customPrompt = '' 
+}) {
+  // 1. Format comments (aka “user feedback”)
+  let formattedFeedback = '[No user feedback]';
+  if (Array.isArray(comments) && comments.length) {
+    formattedFeedback = comments.map(c => `- ${c}`).join('\n');
+  } else if (typeof comments === 'string' && comments.trim()) {
+    formattedFeedback = '- ' + comments.replace(/\n/g, '\n- ');
   }
 
+  // 2. Build generic prompt
   return `
-  # ${title}
-  
-  ## Reddit Post Summary:
-  ${postContent || '[No post body found — may be a link/image post]'}
-  
-  ## Top Comments:
-  ${formattedComments}
-  
-   ## Summary of Content:
-  ${summary || '[No summary provided]'}
+# ${title}
 
-  ## Instruction:
-  ${customPrompt || 'Write an SEO-friendly blog post using the above Reddit content. Use headings, lists, and a human-like tone.'}
-  
-  # ROLE
-  You are a world-class SEO content writer...
-  
-  # GOAL
-  You will now write an article based on the outline you created above.
-  
-  ARTICLE TYPE: Blog post   
-  TARGET AUDIENCE: General public  
-  NUMBER OF WORDS: ~2500  
-  
-  # REQUIREMENTS
-  - Keep reading ease score ~80
-  - Conversational tone with digressions
-  - Mix casual and professional language
-  - Avoid generic buzzwords
-  - Use subheadings: <h2>, <h3>
-  - Paragraphs: <p>
-  - Lists: <ul>, <li>
-  - Use contractions and idioms
-  - Add emotional and rhetorical cues
-  - Include mild redundancy like humans do
-  - Use varied punctuation and sentence length
-  - Mimic human rhythm and logic
-  
-  # STRUCTURE
-  - Strong opening paragraph
-  - Subheadings: <h2>, <h3>
-  - Paragraphs: <p>
-  - Lists: <ul>, <li>
-  - Include a final conclusion
-  - Output HTML only — no markdown or extra explanation
-  
-  ## Final Instruction:
-  Write the blog article in valid HTML. Output the blog content only.
-  `;
+## Reference Content
+${postContent || '[Main content unavailable]'}
+
+## Key Takeaways
+${summary || '[No summary available]'}
+
+## User Feedback
+${formattedFeedback}
+
+## Instruction
+${customPrompt} 
+'Using the above material, write a detailed, SEO‑optimized blog post. Use headings, lists, and a friendly, human tone.'
+
+# ROLE
+You are a professional SEO copywriter.
+
+# GOAL
+Craft a unique, high‑quality blog post inspired by the reference material.
+
+ARTICLE TYPE: Blog post  
+TARGET AUDIENCE: General readers  
+WORD COUNT: ~2500  
+
+# REQUIREMENTS
+- Readability: Flesch ~80  
+- Tone: Conversational with occasional professionalism  
+- Structure:  
+  - Subheadings: `<h2>`, `<h3>`  
+  - Paragraphs: `<p>`  
+  - Lists: `<ul>`, `<li>`  
+- Use idioms, contractions, emotional cues, varied sentence lengths  
+- Avoid fluff, generic buzzwords  
+- Output valid HTML only—no Markdown or extra commentary
+
+## Final Task
+Write the complete blog article in HTML. Output **only** the HTML content.
+  `.trim();
 }
 
 module.exports = { buildPrompt };

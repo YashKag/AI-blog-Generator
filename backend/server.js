@@ -4,6 +4,11 @@ const app = express();
 const imageRoute = require('./image/image')
 
 const rssRoute = require('./api/rss');
+const connectDB = require("./db");
+
+
+connectDB();
+
 
 require('dotenv').config();
 
@@ -28,6 +33,7 @@ app.use('/api/rss', rssRoute);
 
 app.use('/api/topics', require('./api/topics'));
 
+app.use("/api/stats", require("./api/stats"));
 
 app.use('/api/generate', require('./api/generate'));
 app.use('/api/publish', require('./api/publish'));

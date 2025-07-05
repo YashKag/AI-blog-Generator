@@ -14,7 +14,10 @@ const Dashboard = () => {
   const [comments, setComments] = useState("");
   const [images, setImages] = useState([]);
 
+  
+
   const [rssArticles, setRssArticles] = useState([]);
+
 
   const apiBase = import.meta.env.VITE_API_URL;
 
@@ -176,6 +179,7 @@ const Dashboard = () => {
       </div>
 
       {/* Compact Header */}
+
       <div className="relative z-10 flex items-center justify-between p-4 max-w-7xl mx-auto">
         <div className="flex items-center gap-3">
           <div className="p-2 bg-white/10 backdrop-blur-sm rounded-xl border border-white/20">
@@ -193,7 +197,7 @@ const Dashboard = () => {
               />
             </svg>
           </div>
-          <span className="text-white font-semibold">AI Blogger</span>
+          <span className="text-white font-semibold">Blogger Automation AI</span>
         </div>
         <button className="bg-white/10 backdrop-blur-sm border border-white/20 text-white hover:bg-white/20 px-4 py-2 rounded-lg transition-colors text-sm">
           Join Beta

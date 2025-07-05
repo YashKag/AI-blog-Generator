@@ -86,7 +86,11 @@ router.get('/', async (req, res) => {
       })
     );
 
-    res.json(posts.filter(Boolean)); // filter out nulls
+
+    
+    res.json(posts.filter(Boolean)); 
+
+
   } catch (err) {
     console.error('❌ Reddit fetch error:', err.config?.url || '', err.message);
     res.status(500).json({ error: 'Unable to fetch Reddit posts' });

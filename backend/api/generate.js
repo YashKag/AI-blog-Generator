@@ -3,6 +3,32 @@ const router = express.Router();
 const { generateFromOllama } = require("../utils/ollamaClient");
 const { buildPrompt } = require("../utils/promptBuilder");
 const { generateTitleWithOllama } = require("../utils/generateTitleWithOllama");
+const Post = require("../models/posts");
+
+
+
+
+
+
+
+
+
+const html = await generateBlogPost(); // however you do it
+const wordCount = html.split(/\s+/).length;
+
+await Post.create({
+  title,
+  wordCount,
+  status: "generated",
+});
+
+
+
+
+
+
+
+
 router.post("/", async (req, res) => {
   const {
     title: fallbackTitle,
