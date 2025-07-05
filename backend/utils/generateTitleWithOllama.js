@@ -10,6 +10,7 @@ Generate a short, SEO-optimized blog post title about this Reddit post:
 "${context}"
 
 Keep it under 12 words. Don't use hashtags or quotes. Stick to the actual topic.
+just give me title only , Dont give with double quotes .
   `;
 
   const response = await axios.post(OLLAMA_URL, {

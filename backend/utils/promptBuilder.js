@@ -1,4 +1,4 @@
-function buildPrompt({ title, postContent = '', comments = [], customPrompt = '' }) {
+function buildPrompt({ title, postContent = '',summary ='', comments = [], customPrompt = '' }) {
   // 🧠 Convert array of comments to bullet points
   let formattedComments = '[No comments found]';
   if (Array.isArray(comments) && comments.length > 0) {
@@ -16,6 +16,9 @@ function buildPrompt({ title, postContent = '', comments = [], customPrompt = ''
   ## Top Comments:
   ${formattedComments}
   
+   ## Summary of Content:
+  ${summary || '[No summary provided]'}
+
   ## Instruction:
   ${customPrompt || 'Write an SEO-friendly blog post using the above Reddit content. Use headings, lists, and a human-like tone.'}
   
@@ -25,7 +28,7 @@ function buildPrompt({ title, postContent = '', comments = [], customPrompt = ''
   # GOAL
   You will now write an article based on the outline you created above.
   
-  ARTICLE TYPE: Blog post  
+  ARTICLE TYPE: Blog post   
   TARGET AUDIENCE: General public  
   NUMBER OF WORDS: ~2500  
   

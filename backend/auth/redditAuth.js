@@ -15,22 +15,32 @@ async function getRedditToken() {
 
   const data = qs.stringify({ grant_type: 'client_credentials' });
 
-  const res = await axios.post(
-    'https://www.reddit.com/api/v1/access_token',
-    data,
-    {
-      auth: { username: CLIENT_ID, password: CLIENT_SECRET },
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'User-Agent': 'YourAppName/1.0 by yourRedditUsername',
-      },
-    }
-  );
+  try {
+    const res = await axios.post(
+      'https://www.reddit.com/api/v1/access_token',
+      data,
+      {
+        auth: {
+          username: CLIENT_ID,
+          password: CLIENT_SECRET,
+        },
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'User-Agent': 'kartikey-bot/1.0 by u/kartikeygaming',
+        },
+      }
+    );
 
-  cachedToken = res.data.access_token;
-  tokenExpiresAt = Date.now() + res.data.expires_in * 1000;
+    cachedToken = res.data.access_token;
+    tokenExpiresAt = Date.now() + res.data.expires_in * 1000;
 
-  return cachedToken;
+    console.log('✅ Got Reddit token');
+    return cachedToken;
+  } catch (err) {
+    console.error('❌ Failed to get Reddit token:', err.response?.data || err.message);
+    throw err;
+  }
 }
+
 
 module.exports = { getRedditToken };

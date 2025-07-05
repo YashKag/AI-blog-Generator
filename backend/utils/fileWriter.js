@@ -1,18 +1,3 @@
-// const fs = require('fs');
-// const path = require('path');
-
-// function saveToFile(title, content) {
-//     const filename = title.replace(/\s+/g, '_') + '.html';
-//     const dir = path.join(__dirname, '../outputs');
-
-//     if (!fs.existsSync(dir)) fs.mkdirSync(dir);
-//     fs.writeFileSync(path.join(dir, filename), content, 'utf8');
-//     console.log(`✅ Saved to outputs/${filename}`);
-//   }
-  
-//   module.exports = { saveToFile };
-
-
 
 const fs = require('fs');
 const path = require('path');
@@ -38,15 +23,6 @@ function saveToFile(title, content, saveTxtToo = false) {
     fs.writeFileSync(htmlPath, content, 'utf-8');
     console.log(`✅ Saved HTML to outputs/${filenameBase}.html`);
 
-    // 5. Optionally save plain text
-    // if (saveTxtToo) {
-    //   const stripped = content.replace(/<[^>]+>/g, ''); // remove HTML tags
-    //   fs.writeFileSync(txtPath, stripped, 'utf-8');
-    //   console.log(`📝 Also saved plain text to outputs/${filenameBase}.txt`);
-    // }
-
-    // 6. Open in browser
-    // open(htmlPath);
   } catch (err) {
     console.error('❌ Error saving file:', err.message);
   }

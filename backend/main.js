@@ -47,7 +47,7 @@ async function runCLI() {
   }
 }
 
-// ✅ Run only if file is executed directly
+// ✅ Run only if file is executed directlyn
 if (require.main === module) {
   runCLI();
 }

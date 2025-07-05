@@ -1,57 +1,22 @@
 const express = require('express');
 const router = express.Router();
 const axios = require('axios');
-const qs = require('qs');
 
-const CLIENT_ID = process.env.REDDIT_CLIENT_ID;
-const CLIENT_SECRET = process.env.REDDIT_CLIENT_SECRET;
-
-let cachedToken = null;
-let tokenExpiresAt = 0;
-
-async function getRedditToken() {
-  if (cachedToken && Date.now() < tokenExpiresAt - 10_000) {
-    return cachedToken;
-  }
-
-  const data = qs.stringify({ grant_type: 'client_credentials' });
-
-  const res = await axios.post(
-    'https://www.reddit.com/api/v1/access_token',
-    data,
-    {
-      auth: {
-        username: CLIENT_ID,
-        password: CLIENT_SECRET,
-      },
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'User-Agent': 'BlogBot/1.0 by u/kartikeygaming',
-      },
-    }
-  );
-
-  cachedToken = res.data.access_token;
-  tokenExpiresAt = Date.now() + res.data.expires_in * 1000;
-
-  return cachedToken;
-}
-
+// Clean HTML tags from text
 function cleanText(text) {
-  return text.replace(/<\/?[^>]+(>|$)/g, "").trim(); // remove HTML tags
+  return text.replace(/<\/?[^>]+(>|$)/g, "").trim();
 }
 
 router.get('/', async (req, res) => {
   const subreddit = req.query.subreddit || 'popular';
 
   try {
-    const token = await getRedditToken();
+    // ✅ Use the public Reddit API (no token required)
+    const url = `https://www.reddit.com/r/${subreddit}/top.json?t=day&limit=25`;
 
-    const url = `https://oauth.reddit.com/r/${subreddit}/top?t=day&limit=25`;
     const response = await axios.get(url, {
       headers: {
-        Authorization: `Bearer ${token}`,
-        'User-Agent': 'BlogBot/1.0 by yourRedditUsername',
+        'User-Agent': 'kartikey-bot/1.0 by u/kartikeygaming',
       },
     });
 
@@ -59,10 +24,18 @@ router.get('/', async (req, res) => {
       response.data.data.children.map(async (post) => {
         const postData = post.data;
 
-        // Skip non-text posts
-        if (!postData.is_self || !postData.selftext?.trim()) return null;
+        // 🛑 Skip unwanted or removed content
+        if (
+          !postData.is_self ||
+          !postData.selftext?.trim() ||
+          postData.selftext === '[removed]' ||
+          postData.author === '[deleted]' ||
+          postData.archived
+        ) {
+          return null;
+        }
 
-        // Handle thumbnail image
+        // 🖼️ Handle image fallback
         const hasValidThumb = postData.thumbnail?.startsWith('http');
         const image = hasValidThumb
           ? postData.thumbnail
@@ -71,12 +44,12 @@ router.get('/', async (req, res) => {
         let topComments = [];
 
         try {
+          // ✅ Fetch comments using public endpoint
           const commentsRes = await axios.get(
-            `https://oauth.reddit.com${postData.permalink}?limit=15`,
+            `https://www.reddit.com${postData.permalink}.json?limit=15`,
             {
               headers: {
-                Authorization: `Bearer ${token}`,
-                'User-Agent': 'BlogBot/1.0 by yourRedditUsername',
+                'User-Agent': 'kartikey-bot/1.0 by u/kartikeygaming',
               },
             }
           );
@@ -100,7 +73,7 @@ router.get('/', async (req, res) => {
               };
             });
         } catch (err) {
-          console.warn("⚠️ Couldn't load comments for", postData.permalink);
+          console.warn("⚠️ Couldn't load comments for", postData.permalink, err.message);
         }
 
         return {
@@ -113,9 +86,9 @@ router.get('/', async (req, res) => {
       })
     );
 
-    res.json(posts.filter(Boolean));
+    res.json(posts.filter(Boolean)); // filter out nulls
   } catch (err) {
-    console.error('❌ Reddit fetch error:', err.message);
+    console.error('❌ Reddit fetch error:', err.config?.url || '', err.message);
     res.status(500).json({ error: 'Unable to fetch Reddit posts' });
   }
 });
