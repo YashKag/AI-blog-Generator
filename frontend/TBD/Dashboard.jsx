@@ -13,8 +13,8 @@ const Dashboard = () => {
   const [summary, setSummary] = useState([]);
   const [comments, setComments] = useState("");
   const [images, setImages] = useState([]);
-
-  
+  const [stats, setStats] = useState({});
+  const [recentPosts, setRecentPosts] = useState([]);
 
   const [rssArticles, setRssArticles] = useState([]);
 
@@ -48,7 +48,19 @@ const Dashboard = () => {
 
   useEffect(() => {
     fetchRss();
+    fetchStats();
   }, []);
+
+  const fetchStats = async () => {
+    try {
+      const res = await fetch(`${apiBase}/api/stats`);
+      const data = await res.json();
+      setStats(data.stats || {});
+      setRecentPosts(data.recentPosts || []);
+    } catch (err) {
+      console.error("❌ Stats fetch failed:", err);
+    }
+  };
 
   const fetchRss = async () => {
     try {
@@ -60,6 +72,9 @@ const Dashboard = () => {
       console.error("❌ RSS fetch failed:", err);
     }
   };
+
+
+  
 
   const handlePost = async () => {
     if (!output || !title) {
@@ -147,27 +162,7 @@ const Dashboard = () => {
     }
   };
 
-  // Mock data for the dashboard
-  const mockStats = [
-    {
-      title: "AI Blog Post",
-      status: "Generated",
-      progress: "98%",
-      color: "bg-blue-500",
-    },
-    {
-      title: "SEO Optimization",
-      status: "Ready to publish",
-      progress: "92%",
-      color: "bg-green-500",
-    },
-    {
-      title: "Content Analysis",
-      status: "Processing...",
-      progress: "67%",
-      color: "bg-orange-500",
-    },
-  ];
+
 
   return (
     <div className="min-h-screen bg-black relative overflow-hidden">
@@ -385,43 +380,49 @@ const Dashboard = () => {
                 <div>
                   <h3 className="text-white font-semibold">Content Pipeline</h3>
                   <p className="text-gray-400 text-sm">
-                    {mockStats.length} items in progress
+                    {recentPosts.length} posts published
                   </p>
                 </div>
               </div>
 
               <div className="space-y-3">
-                {mockStats.map((item, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center gap-3 p-3 bg-gray-800/50 rounded-lg"
-                  >
-                    <div className={`p-2 ${item.color}/20 rounded-lg`}>
-                      <svg
-                        className="w-4 h-4 text-current"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                        />
-                      </svg>
+                {recentPosts.length > 0 ? (
+                  recentPosts.map((post, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center gap-3 p-3 bg-gray-800/50 rounded-lg"
+                    >
+                      <div className="p-2 bg-green-500/20 rounded-lg">
+                        <svg
+                          className="w-4 h-4 text-green-400"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                          />
+                        </svg>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-white text-sm font-medium truncate">
+                          {post.title}
+                        </p>
+                        <p className="text-gray-400 text-xs">Published</p>
+                      </div>
+                      <span className="bg-green-500/20 text-green-400 border border-green-500/30 px-2 py-1 rounded text-xs">
+                        Live
+                      </span>
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-white text-sm font-medium truncate">
-                        {item.title}
-                      </p>
-                      <p className="text-gray-400 text-xs">{item.status}</p>
-                    </div>
-                    <span className="bg-green-500/20 text-green-400 border border-green-500/30 px-2 py-1 rounded text-xs">
-                      {item.progress}
-                    </span>
+                  ))
+                ) : (
+                  <div className="text-center text-gray-400 text-sm py-4">
+                    No posts yet. Generate your first post!
                   </div>
-                ))}
+                )}
               </div>
             </div>
 
@@ -430,11 +431,11 @@ const Dashboard = () => {
               <h3 className="text-white font-semibold mb-4">Today's Impact</h3>
               <div className="grid grid-cols-2 gap-4">
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-white mb-1">12</div>
+                  <div className="text-2xl font-bold text-white mb-1">{stats.postsGenerated || 0}</div>
                   <div className="text-gray-400 text-sm">Posts Generated</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-white mb-1">3.2k</div>
+                  <div className="text-2xl font-bold text-white mb-1">{stats.wordsCreated || 0}</div>
                   <div className="text-gray-400 text-sm">Words Created</div>
                 </div>
               </div>

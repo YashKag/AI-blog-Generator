@@ -5,7 +5,6 @@ function buildPrompt({
   comments = [], 
   customPrompt = '' 
 }) {
-  // 1. Format comments (aka “user feedback”)
   let formattedFeedback = '[No user feedback]';
   if (Array.isArray(comments) && comments.length) {
     formattedFeedback = comments.map(c => `- ${c}`).join('\n');
@@ -13,7 +12,6 @@ function buildPrompt({
     formattedFeedback = '- ' + comments.replace(/\n/g, '\n- ');
   }
 
-  // 2. Build generic prompt
   return `
 # ${title}
 
@@ -27,8 +25,7 @@ ${summary || '[No summary available]'}
 ${formattedFeedback}
 
 ## Instruction
-${customPrompt} 
-'Using the above material, write a detailed, SEO‑optimized blog post. Use headings, lists, and a friendly, human tone.'
+${customPrompt || 'Using the above material, write a detailed, SEO‑optimized blog post. Use headings, lists, and a friendly, human tone.'}
 
 # ROLE
 You are a professional SEO copywriter.
@@ -44,9 +41,9 @@ WORD COUNT: ~2500
 - Readability: Flesch ~80  
 - Tone: Conversational with occasional professionalism  
 - Structure:  
-  - Subheadings: `<h2>`, `<h3>`  
-  - Paragraphs: `<p>`  
-  - Lists: `<ul>`, `<li>`  
+  - Subheadings: \`<h2>\`, \`<h3>\`  
+  - Paragraphs: \`<p>\`  
+  - Lists: \`<ul>\`, \`<li>\`  
 - Use idioms, contractions, emotional cues, varied sentence lengths  
 - Avoid fluff, generic buzzwords  
 - Output valid HTML only—no Markdown or extra commentary

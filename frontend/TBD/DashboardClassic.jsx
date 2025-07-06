@@ -1,72 +1,73 @@
-"use client";
-import { useState, useEffect } from "react";
+"use client"
+import { useState, useEffect } from "react"
 
 const DashboardClassic = () => {
-  const [title, setTitle] = useState("");
-  const [prompt, setPrompt] = useState("");
-  const [output, setOutput] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [topics, setTopics] = useState([]);
-  const [subreddit, setSubreddit] = useState("technology");
-  const [postContent, setPostContent] = useState("");
-  const [summary, setSummary] = useState([]);
-  const [comments, setComments] = useState("");
-  const [images, setImages] = useState([]);
-  const [rssArticles, setRssArticles] = useState([]);
-  const [stats, setStats] = useState({});
-  const [recentPosts, setRecentPosts] = useState([]);
-  const [selectedImage, setSelectedImage] = useState(null);
+  const [title, setTitle] = useState("")
+  const [prompt, setPrompt] = useState("")
+  const [output, setOutput] = useState("")
+  const [loading, setLoading] = useState(false)
+  const [topics, setTopics] = useState([])
+  const [subreddit, setSubreddit] = useState("technology")
+  const [postContent, setPostContent] = useState("")
+  const [summary, setSummary] = useState([])
+  const [comments, setComments] = useState("")
+  const [images, setImages] = useState([])
+  const [rssArticles, setRssArticles] = useState([])
+  const [stats, setStats] = useState({})
+  const [recentPosts, setRecentPosts] = useState([])
+  const [selectedImage, setSelectedImage] = useState(null)
 
-  const apiBase = import.meta.env.VITE_API_URL;
+
+  const apiBase = import.meta.env.VITE_API_URL
 
   const fetchTopics = async () => {
     try {
-      const res = await fetch(`${apiBase}/api/topics?subreddit=${subreddit}`);
-      const data = await res.json();
-      setTopics(Array.isArray(data) ? data : []);
+      const res = await fetch(`${apiBase}/api/topics?subreddit=${subreddit}`)
+      const data = await res.json()
+      setTopics(Array.isArray(data) ? data : [])
     } catch (err) {
-      console.error("❌ Failed to load Reddit topics:", err);
-      setTopics([]);
+      console.error("❌ Failed to load Reddit topics:", err)
+      setTopics([])
     }
-  };
+  }
 
   useEffect(() => {
-    fetchRss();
-    fetchStats();
-  }, []);
+    fetchRss()
+    fetchStats()
+  }, [])
 
   const fetchRss = async () => {
     try {
-      const res = await fetch(`${apiBase}/api/rss`);
-      const data = await res.json();
-      setRssArticles(Array.isArray(data) ? data : []);
+      const res = await fetch(`${apiBase}/api/rss`)
+      const data = await res.json()
+      setRssArticles(Array.isArray(data) ? data : [])
     } catch (err) {
-      console.error("❌ RSS fetch failed:", err);
+      console.error("❌ RSS fetch failed:", err)
     }
-  };
+  }
 
   const fetchStats = async () => {
     try {
-      const res = await fetch(`${apiBase}/api/stats`);
-      const data = await res.json();
-      setStats(data.stats || {});
-      setRecentPosts(data.recentPosts || []);
+      const res = await fetch(`${apiBase}/api/stats`)
+      const data = await res.json()
+      setStats(data.stats || {})
+      setRecentPosts(data.recentPosts || [])
     } catch (err) {
-      console.error("❌ Stats fetch failed:", err);
+      console.error("❌ Stats fetch failed:", err)
     }
-  };
+  }
 
   const handlePost = async () => {
     if (!output || !title) {
-      alert("⚠️ Missing title or content");
-      return;
+      alert("⚠️ Missing title or content")
+      return
     }
-
+    
     // Debug logging
-    console.log("🖼️ Publishing with image:", selectedImage);
-    console.log("🖼️ Image URL:", selectedImage?.url);
-    console.log("📝 Available images:", images);
-
+    console.log("🖼️ Publishing with image:", selectedImage)
+    console.log("🖼️ Image URL:", selectedImage?.url)
+    console.log("📝 Available images:", images)
+    
     try {
       const res = await fetch(`${apiBase}/api/publish`, {
         method: "POST",
@@ -76,36 +77,41 @@ const DashboardClassic = () => {
           html: output,
           image: selectedImage?.url || null,
         }),
-      });
+
+        
+        
+      })
 
       console.log("Data sent to backend:", {
         title,
         html: output,
         image: selectedImage?.url || null,
       });
-
-      const data = await res.json();
+      
+      const data = await res.json()
       if (!res.ok) {
-        throw new Error(data.error || `Status ${res.status}`);
+        throw new Error(data.error || `Status ${res.status}`)
       }
-      alert(`✅ Blog posted!\n📎 URL: ${data.url}`);
+      alert(`✅ Blog posted!\n📎 URL: ${data.url}`)
     } catch (err) {
-      console.error("❌ Publish error:", err);
-      alert("❌ Failed to publish: " + err.message);
+      console.error("❌ Publish error:", err)
+      alert("❌ Failed to publish: " + err.message)
     }
-  };
+  }
+  
+  
 
   const handleGenerate = async () => {
     if (!title) {
-      alert("⚠️ Please enter a title.");
-      return;
+      alert("⚠️ Please enter a title.")
+      return
     }
-    const selectedTopic = topics.find((t) => t.title === title);
-    const finalPostContent = selectedTopic?.postContent || postContent;
-    const finalComments = selectedTopic?.topComments || comments;
+    const selectedTopic = topics.find((t) => t.title === title)
+    const finalPostContent = selectedTopic?.postContent || postContent
+    const finalComments = selectedTopic?.topComments || comments
 
-    setLoading(true);
-    setOutput("");
+    setLoading(true)
+    setOutput("")
     try {
       const res = await fetch(`${apiBase}/api/generate`, {
         method: "POST",
@@ -117,35 +123,69 @@ const DashboardClassic = () => {
           customPrompt: prompt,
           summary: summary,
         }),
-      });
-      const data = await res.json();
+      })
+      const data = await res.json()
       if (!res.ok) {
-        throw new Error(data.error || "Unknown error");
+        throw new Error(data.error || "Unknown error")
       }
-      setOutput(data.html || "⚠️ No content generated.");
-      setTitle(data.title || title);
+      setOutput(data.html || "⚠️ No content generated.")
+      setTitle(data.title || title)
 
       if (Array.isArray(data.images)) {
-        setImages(data.images);
-        console.log("🖼️ Images in frontend:", data.images);
+        setImages(data.images)
+        console.log("🖼️ Images in frontend:", data.images)
       } else {
-        setImages([]);
-        console.log("🖼️ No images received.");
+        setImages([])
+        console.log("🖼️ No images received.")
       }
 
-      setLoading(false);
+      setLoading(false)
     } catch (err) {
-      console.error("❌ Generation Error:", err);
-      setOutput(`❌ Failed to generate: ${err.message}`);
+      console.error("❌ Generation Error:", err)
+      setOutput(`❌ Failed to generate: ${err.message}`)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   return (
     <div className="min-h-screen bg-white">
       {/* Reddit-style Header */}
-
+      <div className="bg-white border-b border-gray-300">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-center h-12 px-4">
+            {/* Logo */}
+            <div className="flex items-center gap-2 mr-8">
+    
+              <span className="font-bold text-lg">Sārathi</span>
+            </div>
+            {/* Navigation */}
+            <nav className="flex items-center gap-6 text-sm">
+              <a href="#" className="text-blue-600 hover:underline font-bold">
+                About
+              </a>
+              <a href="#" className="text-gray-600 hover:text-blue-600">
+                BugReport
+              </a>
+              <a href="#" className="text-gray-600 hover:text-blue-600">
+                Kartikey
+              </a>
+              <a href="#" className="text-gray-600 hover:text-blue-600">
+                HelpFAQ
+              </a>
+            </nav>
+            {/* User actions */}
+            <div className="ml-auto flex items-center gap-4 text-sm">
+              <a href="#" className="text-blue-600 hover:underline">
+                Login
+              </a>
+              <a href="#" className="text-blue-600 hover:underline">
+                Register
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <div className="max-w-7xl mx-auto px-4 py-4">
         <div className="flex gap-6">
@@ -159,9 +199,7 @@ const DashboardClassic = () => {
               <div className="p-4">
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium mb-1">
-                      Title
-                    </label>
+                    <label className="block text-sm font-medium mb-1">Title</label>
                     <input
                       type="text"
                       placeholder="Enter blog title"
@@ -171,9 +209,7 @@ const DashboardClassic = () => {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-1">
-                      Custom prompt (optional)
-                    </label>
+                    <label className="block text-sm font-medium mb-1">Custom prompt (optional)</label>
                     <textarea
                       placeholder="Add additional instructions..."
                       value={prompt}
@@ -219,17 +255,13 @@ const DashboardClassic = () => {
                 {topics.length > 0 && (
                   <select
                     onChange={(e) => {
-                      const selectedIndex = Number.parseInt(e.target.value);
-                      const topic = topics[selectedIndex];
+                      const selectedIndex = Number.parseInt(e.target.value)
+                      const topic = topics[selectedIndex]
                       if (topic) {
-                        setTitle(topic.title);
-                        setPostContent(topic.postContent || "");
-                        setComments(
-                          Array.isArray(topic.topComments)
-                            ? topic.topComments.join("\n")
-                            : ""
-                        );
-                        setSummary("");
+                        setTitle(topic.title)
+                        setPostContent(topic.postContent || "")
+                        setComments(Array.isArray(topic.topComments) ? topic.topComments.join("\n") : "")
+                        setSummary("")
                       }
                     }}
                     className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
@@ -253,13 +285,13 @@ const DashboardClassic = () => {
               <div className="p-4">
                 <select
                   onChange={(e) => {
-                    const index = Number.parseInt(e.target.value);
-                    const article = rssArticles[index];
+                    const index = Number.parseInt(e.target.value)
+                    const article = rssArticles[index]
                     if (article) {
-                      setTitle(article.title);
-                      setPostContent(article.content || "");
-                      setSummary(article.description || "");
-                      setComments("");
+                      setTitle(article.title)
+                      setPostContent(article.content || "")
+                      setSummary(article.description || "")
+                      setComments("")
                     }
                   }}
                   className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
@@ -278,19 +310,12 @@ const DashboardClassic = () => {
             <div className="space-y-2">
               {recentPosts.length > 0 ? (
                 recentPosts.map((post, index) => (
-                  <div
-                    key={index}
-                    className="bg-white border border-gray-300 rounded"
-                  >
+                  <div key={index} className="bg-white border border-gray-300 rounded">
                     <div className="flex">
                       {/* Vote arrows */}
                       <div className="flex flex-col items-center p-2 bg-gray-50 border-r border-gray-300 w-12">
                         <button className="text-gray-400 hover:text-orange-500 p-1">
-                          <svg
-                            className="w-4 h-4"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                          >
+                          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                             <path
                               fillRule="evenodd"
                               d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z"
@@ -298,15 +323,9 @@ const DashboardClassic = () => {
                             />
                           </svg>
                         </button>
-                        <span className="text-xs font-bold text-gray-600 py-1">
-                          {index + 1}
-                        </span>
+                        <span className="text-xs font-bold text-gray-600 py-1">{index + 1}</span>
                         <button className="text-gray-400 hover:text-blue-500 p-1">
-                          <svg
-                            className="w-4 h-4"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                          >
+                          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                             <path
                               fillRule="evenodd"
                               d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
@@ -317,9 +336,7 @@ const DashboardClassic = () => {
                       </div>
                       {/* Post content */}
                       <div className="flex-1 p-3">
-                        <h3 className="text-blue-600 hover:underline cursor-pointer font-medium mb-1">
-                          {post.title}
-                        </h3>
+                        <h3 className="text-blue-600 hover:underline cursor-pointer font-medium mb-1">{post.title}</h3>
                         <div className="text-xs text-gray-500 space-x-1">
                           <span>submitted {post.time} by</span>
                           <a href="#" className="text-blue-600 hover:underline">
@@ -331,31 +348,19 @@ const DashboardClassic = () => {
                           </a>
                         </div>
                         <div className="text-xs text-gray-500 mt-1 space-x-2">
-                          <a
-                            href="#"
-                            className="text-gray-600 hover:text-blue-600"
-                          >
+                          <a href="#" className="text-gray-600 hover:text-blue-600">
                             {post.comments} comments
                           </a>
                           <span>•</span>
-                          <a
-                            href="#"
-                            className="text-gray-600 hover:text-blue-600"
-                          >
+                          <a href="#" className="text-gray-600 hover:text-blue-600">
                             share
                           </a>
                           <span>•</span>
-                          <a
-                            href="#"
-                            className="text-gray-600 hover:text-blue-600"
-                          >
+                          <a href="#" className="text-gray-600 hover:text-blue-600">
                             save
                           </a>
                           <span>•</span>
-                          <a
-                            href="#"
-                            className="text-gray-600 hover:text-blue-600"
-                          >
+                          <a href="#" className="text-gray-600 hover:text-blue-600">
                             hide
                           </a>
                         </div>
@@ -374,9 +379,7 @@ const DashboardClassic = () => {
             {output && (
               <div className="mt-6 bg-white border border-gray-300 rounded">
                 <div className="bg-gray-50 border-b border-gray-300 px-4 py-2 flex items-center justify-between">
-                  <h3 className="font-bold text-sm">
-                    Generated Content Preview
-                  </h3>
+                  <h3 className="font-bold text-sm">Generated Content Preview</h3>
                   {/* Publish button moved here with Reddit styling */}
                   <button
                     onClick={handlePost}
@@ -387,32 +390,19 @@ const DashboardClassic = () => {
                   </button>
                 </div>
                 <div className="p-4">
-                  <div
-                    className="prose prose-sm max-w-none"
-                    dangerouslySetInnerHTML={{ __html: output }}
-                  />
+                  <div className="prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: output }} />
                 </div>
                 {/* Reddit-style action bar */}
                 <div className="border-t border-gray-200 px-4 py-2 bg-gray-50">
                   <div className="flex items-center gap-4 text-xs text-gray-500">
-                    <button className="text-gray-600 hover:text-blue-600 font-bold">
-                      edit
-                    </button>
+                    <button className="text-gray-600 hover:text-blue-600 font-bold">edit</button>
                     <span>•</span>
-                    <button className="text-gray-600 hover:text-blue-600">
-                      save draft
-                    </button>
+                    <button className="text-gray-600 hover:text-blue-600">save draft</button>
                     <span>•</span>
-                    <button className="text-gray-600 hover:text-blue-600">
-                      preview
-                    </button>
+                    <button className="text-gray-600 hover:text-blue-600">preview</button>
                     <span>•</span>
-                    <button className="text-gray-600 hover:text-blue-600">
-                      copy html
-                    </button>
-                    <div className="ml-auto text-gray-400">
-                      ready to publish • {new Date().toLocaleTimeString()}
-                    </div>
+                    <button className="text-gray-600 hover:text-blue-600">copy html</button>
+                    <div className="ml-auto text-gray-400">ready to publish • {new Date().toLocaleTimeString()}</div>
                   </div>
                 </div>
               </div>
@@ -420,44 +410,42 @@ const DashboardClassic = () => {
 
             {/* Images */}
             {Array.isArray(images) && images.length > 0 && (
-              <div className="mt-4 bg-white border border-gray-300 rounded">
-                <div className="bg-gray-50 border-b border-gray-300 px-4 py-2">
-                  <h3 className="font-bold text-sm">Related Images</h3>
-                </div>
-                <div className="p-4">
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                    {images.map((img, i) => (
-                      <div
-                        key={i}
-                        onClick={() => {
-                          console.log("🖼️ Image selected:", img);
-                          setSelectedImage(img);
-                        }}
-                        className={`cursor-pointer border rounded overflow-hidden ${
-                          selectedImage?.url === img.url
-                            ? "ring-4 ring-blue-400"
-                            : "hover:ring-2 hover:ring-blue-200"
-                        }`}
-                      >
-                        <img
-                          src={
-                            img.url || "/placeholder.svg?height=128&width=192"
-                          }
-                          alt={img.alt || `image-${i}`}
-                          className="w-full h-32 object-cover"
-                        />
-                      </div>
-                    ))}
-                  </div>
+  <div className="mt-4 bg-white border border-gray-300 rounded">
+    <div className="bg-gray-50 border-b border-gray-300 px-4 py-2">
+      <h3 className="font-bold text-sm">Related Images</h3>
+    </div>
+    <div className="p-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+        {images.map((img, i) => (
+          <div
+            key={i}
+            onClick={() => {
+              console.log("🖼️ Image selected:", img)
+              setSelectedImage(img)
+            }}
+            className={`cursor-pointer border rounded overflow-hidden ${
+              selectedImage?.url === img.url
+                ? "ring-4 ring-blue-400"
+                : "hover:ring-2 hover:ring-blue-200"
+            }`}
+          >
+            <img
+              src={img.url || "/placeholder.svg?height=128&width=192"}
+              alt={img.alt || `image-${i}`}
+              className="w-full h-32 object-cover"
+            />
+          </div>
+        ))}
+      </div>
 
-                  {selectedImage && (
-                    <div className="text-sm text-blue-500 mt-3">
-                      ✅ Selected image will be included when publishing.
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
+      {selectedImage && (
+        <div className="text-sm text-blue-500 mt-3">
+          ✅ Selected image will be included when publishing.
+        </div>
+      )}
+    </div>
+  </div>
+)}
           </div>
 
           {/* Sidebar */}
@@ -468,9 +456,7 @@ const DashboardClassic = () => {
                 <h3 className="font-bold text-sm">r/Sārathi</h3>
               </div>
               <div className="p-4">
-                <p className="text-sm text-gray-600 mb-3">
-                  Where Insight Meets Automation
-                </p>
+                <p className="text-sm text-gray-600 mb-3">Where Insight Meets Automation</p>
                 <div className="text-sm space-y-1 mb-3">
                   <div className="flex justify-between">
                     <span className="text-gray-600">Subscribers</span>
@@ -496,9 +482,7 @@ const DashboardClassic = () => {
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span className="text-gray-600">Posts generated</span>
-                    <span className="font-bold">
-                      {stats.postsGenerated || 0}
-                    </span>
+                    <span className="font-bold">{stats.postsGenerated || 0}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Words created</span>
@@ -510,9 +494,7 @@ const DashboardClassic = () => {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Published blogs</span>
-                    <span className="font-bold">
-                      {stats.publishedBlogs || 0}
-                    </span>
+                    <span className="font-bold">{stats.publishedBlogs || 0}</span>
                   </div>
                 </div>
               </div>
@@ -572,8 +554,32 @@ const DashboardClassic = () => {
           </div>
         </div>
       </div>
-    </div>
-  );
-};
 
-export default DashboardClassic;
+      {/* Footer */}
+      <div className="border-t border-gray-300 bg-gray-50 mt-8">
+        <div className="max-w-7xl mx-auto px-4 py-4">
+          <div className="flex items-center justify-between text-xs text-gray-500">
+            <div className="flex items-center gap-4">
+              <span>© 2025 Sārathi</span>
+              <a href="#" className="hover:text-blue-600">
+                help
+              </a>
+              <a href="#" className="hover:text-blue-600">
+                privacy
+              </a>
+              <a href="#" className="hover:text-blue-600">
+                terms
+              </a>
+              <a href="#" className="hover:text-blue-600">
+                advertise
+              </a>
+            </div>
+            <div className="text-gray-400">powered by OLLAMA • Reddit API • RSS feeds</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default DashboardClassic

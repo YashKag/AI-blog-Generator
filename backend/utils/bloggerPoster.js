@@ -11,7 +11,7 @@ async function postToBloggerWithAuth(authClient, { blogId, title, content }) {
     }
   });
 
-  console.log(`✅ Post published: ${res.data.url}`);
+  console.log(`✅ Post published poster: ${res.data.url}`);
   return res.data;
 }
 

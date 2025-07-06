@@ -1,45 +1,48 @@
-
-
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const { postToBloggerWithAuth } = require('../utils/bloggerPoster');
-const { loadAuthClient } = require('../auth/googleAuth');
+const { google } = require("googleapis");
+const authenticate = require("../auth/googleAuth");
 
+router.post("/", async (req, res) => {
+  const { title, html, image } = req.body;
 
+  console.log("📩 Publish Request:", { title, hasHtml: !!html, image });
 
-const BLOG_ID = process.env.BLOGGER_BLOG_ID;
-
-
-
-await Post.updateOne(
-  { title }, // you can also match by `_id` if available
-  { $set: { status: "published" } }
-);
-
-
-
-
-router.post('/', async (req, res) => {
-  const { title, html } = req.body;
+  if (!title || !html) {
+    return res.status(400).json({ error: "Missing title or content" });
+  }
 
   try {
-    const authClient = await new Promise((resolve, reject) => {
-      loadAuthClient((auth) => {
-        if (auth) resolve(auth);
-        else reject(new Error('Google Auth failed'));
-      });
+    const auth = await authenticate();
+    const blogger = google.blogger({ version: "v3", auth });
+    const blogId = process.env.BLOGGER_BLOG_ID;
+
+    // 🔧 Inject the image into the content if provided
+    let finalHtml = html;
+    if (image) {
+      finalHtml = `
+        <div style="text-align:center; margin-bottom: 1rem;">
+          <img src="${image}" alt="${title}" style="max-width:100%; height:auto;" />
+        </div>
+        ${html}
+      `;
+    }
+
+    console.log("📝 Final HTML to Blogger:\n", finalHtml);
+
+    const post = await blogger.posts.insert({
+      blogId,
+      requestBody: {
+        title,
+        content: finalHtml,
+      },
     });
 
-    const response = await postToBloggerWithAuth(authClient, {
-      blogId: BLOG_ID,
-      title,
-      content: html
-    });
-
-    res.json({ success: true, url: response.url });
+    console.log("✅ Post published New:", post.data.url);
+    res.json({ url: post.data.url });
   } catch (err) {
-    console.error('❌ Publish error:', err.message);
-    res.status(500).json({ error: err.message });
+    console.error("❌ Blogger publish failed:", err);
+    res.status(500).json({ error: "Failed to publish to Blogger." });
   }
 });
 
