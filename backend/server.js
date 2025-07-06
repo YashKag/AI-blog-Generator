@@ -1,12 +1,13 @@
 const express = require('express');
 const cors = require('cors');
 const app = express();
-
+const { startAutoPosting } = require('./utils/scheduler');
 const rssRoute = require('./api/rss');
 
 
 require('dotenv').config();
 
+startAutoPosting();
 
 //CORS 
 

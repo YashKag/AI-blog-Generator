@@ -3,10 +3,10 @@ const parser = new Parser();
 
 const RSS_FEED = [
     "https://www.theverge.com/rss/index.xml",
-    "https://gamerant.com/feed/"
+    // "https://gamerant.com/feed/"
 ]
 
-async function getRssTitles(limit=5) {
+async function getRssTitles(limit=10) {
     const allArticle = [];
 
     for (const url of RSS_FEED) {
