@@ -20,21 +20,23 @@ const Layout = () => {
               <Link to="/bug-report" className="text-gray-600 hover:text-blue-600">
                 BugReport
               </Link>
-              <Link to="/founder" className="text-gray-600 hover:text-blue-600">
-                Kartikey
-              </Link>
+              
               <Link to="/help-faq" className="text-gray-600 hover:text-blue-600">
                 HelpFAQ
               </Link>
             </nav>
             {/* User actions */}
             <div className="ml-auto flex items-center gap-4 text-sm">
-              <a href="#" className="text-blue-600 hover:underline">
+              {/* <a href="#" className="text-blue-600 hover:underline">
                 Login
               </a>
               <a href="#" className="text-blue-600 hover:underline">
                 Register
-              </a>
+              </a> */}
+
+<Link to="/founder" className="text-gray-600 hover:text-blue-600 font-bold text-lg">
+                Kartikey
+              </Link>
             </div>
           </div>
         </div>
