@@ -52,6 +52,7 @@ Reddit / RSS  ➡️  AI Generate via LLaMA ➡️  Unsplash Images ➡️  SEO 
 ## 🤝 Contributing
 
 We welcome contributions!
+Contact - kartikeysepta@gmail.com
 
 ### 💡 How to Contribute
 1. Fork → Clone → Branch → Code → PR
