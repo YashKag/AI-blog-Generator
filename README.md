@@ -12,8 +12,6 @@ An end-to-end AI blogging automation system that fetches topics from Reddit and 
 
 ---
 
----
-
 ## 🚀 Features
 
 - 🤖 **AI-Powered Content** — Generates full blog posts using LLaMA (via Ollama)
