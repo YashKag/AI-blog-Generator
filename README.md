@@ -2,6 +2,8 @@
 
 An end-to-end AI blogging automation system that fetches topics from Reddit and RSS feeds, generates content using Ollama (LLaMA model), selects relevant images from Unsplash, and automatically publishes SEO-optimized blog posts to Blogger — all through a simple frontend dashboard.
 
+[![Deploy on Netlify](https://img.shields.io/badge/Live%20Demo-Netlify-brightgreen?logo=netlify)](https://sarathi-ai-automation.netlify.app)
+
 ![AI Blogger Automation](./preview.png)
 
 ---
