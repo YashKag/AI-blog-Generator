@@ -26,6 +26,15 @@ An end-to-end AI blogging automation system that fetches topics from Reddit and 
 
 ---
 
+| Component                                              | Status                        |
+| ------------------------------------------------------ | ----------------------------- |
+| Blogger Auto Posting Tool                              | ✅ Done (with Node.js backend) |
+| Netlify Frontend (`sarathi-ai-automation.netlify.app`) | ✅ Done                        |
+| Ollama or LLaMA for AI text                            | ✅ Done                        |
+| Now want: ComfyUI-based **image thumbnail generation** | ⏳ In Progress                 |
+
+---
+
 ## 🧭 How It Works (Architecture)
 
 This tool is a full AI-powered automation system built to create, enrich, and publish blog posts from live internet sources.
